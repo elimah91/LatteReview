@@ -67,7 +67,9 @@ Create reviewer agents by configuring `TitleAbstractReviewer` objects. Each revi
 - Optional configuration like temperature and model parameters
 
 ```python
-# Example of creating a TitleAbstractReviewer
+from lattereview.agents import TitleAbstractReviewer
+
+# Example of creating two TitleAbstractReviewers with different characteristics
 reviewer1 = TitleAbstractReviewer(
     provider=LiteLLMProvider(model="gpt-4o-mini"),  # Choose your model provider
     name="Alice",                                    # Unique name for the reviewer
@@ -76,9 +78,31 @@ reviewer1 = TitleAbstractReviewer(
     reasoning="brief",                               # Reasoning explanation
     model_args={"temperature": 0.1}                 # Model configuration
 )
+
+reviewer2 = TitleAbstractReviewer(
+    provider=LiteLLMProvider(model="gemini/gemini-1.5-flash"),
+    name="Bob",
+    backstory="a computer scientist specializing in medical AI",
+    inclusion_criteria="Relevant to artificial intelligence in radiology.",
+    exclusion_criteria="Exclude studies focused solely on hardware.",
+    reasoning="cot",
+    model_args={"temperature": 0.8}
+)
+
+# Example of creating an expert Reviewer to resolve disagreements
+expert = TitleAbstractReviewer(
+    provider=LiteLLMProvider(model="o3-mini"),
+    name="Carol",
+    backstory="a professor of AI in medical imaging",
+    inclusion_criteria="Must align with at least one of Alice or Bob's recommendations.",
+    exclusion_criteria="Exclude only if both Alice and Bob disagreed.",
+    reasoning="brief",
+    model_args={"reasoning_effort": "high"}  # o3-mini specific parameter
+)
 ```
 
 ## Step 4: Create Review Workflow
+from lattereview.workflows import ReviewWorkflow
 
 Define your workflow by specifying review rounds, reviewers, and input columns. The workflow automatically creates output columns for each reviewer based on their name and review round. For each reviewer, two columns are created:
 
